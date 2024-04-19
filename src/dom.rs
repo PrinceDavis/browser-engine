@@ -1,35 +1,38 @@
 use core::fmt;
-use std::{collections::{HashMap, HashSet}, f32::consts::E, fmt::{write, Formatter}};
+use std::{collections::{HashMap, HashSet}, f32::consts::E, fmt::{write, Formatter}, usize};
 
-struct Node {
+#[derive(PartialEq, Eq)]
+pub struct Node {
   children: Vec<Node>,
   node_type: NodeType,
 }
 
-enum NodeType {
+#[derive(PartialEq, Eq, Clone)]
+pub enum NodeType {
     Text(String),
     Element(ElementData),
     Comment(String),
 }
 
-struct ElementData {
+#[derive(PartialEq, Eq, Clone)]
+pub struct ElementData {
   tag_name: String,
   attributes: AttrMap,
 }
 
 impl ElementData {
-    fn new(tag_name: String, attributes:AttrMap) -> ElementData {
+  pub fn new(tag_name: String, attributes:AttrMap) -> ElementData {
       ElementData{
         tag_name,
         attributes,
       }
     }
 
-    fn get_id(&self) -> Option<&String> {
+  pub fn get_id(&self) -> Option<&String> {
       self.attributes.get("id")
     }
 
-    fn get_classes(&self) -> HashSet<&str> {
+  pub fn get_classes(&self) -> HashSet<&str> {
       match self.attributes.get("class") {
           Some(s) => s.split(' ').collect(),
           None => HashSet::new(),
@@ -37,11 +40,11 @@ impl ElementData {
     }
 }
 
-type AttrMap = HashMap<String, String>;
+pub type AttrMap = HashMap<String, String>;
 
 
 impl Node {
-    fn new(node_type: NodeType, children: Vec<Node>) -> Node {
+  pub fn new(node_type: NodeType, children: Vec<Node>) -> Node {
       Node {
         node_type,
         children
@@ -51,7 +54,7 @@ impl Node {
 
 
 impl fmt::Debug for Node {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self.node_type)
     }
 }
@@ -75,4 +78,23 @@ impl fmt::Debug for ElementData {
 
         write!(f, "<{}, {}", self.tag_name, attributes_string)
     }
+}
+
+pub fn pretty_print(n: &Node, indent_size: usize) {
+  let indent = (0.. indent_size).map(|_| " ").collect::<String>();
+
+  match n.node_type {
+      NodeType::Element(ref e) => println!("{}{:?}", indent, e),
+      NodeType::Text(ref t) => println!("{}{}", indent, t),
+      NodeType::Comment(ref c) => println!("{}<!----{}--->", indent, c),
+  }
+
+  for child in n.children.iter() {
+    pretty_print(&child, indent_size + 2);
+  }
+
+  match n.node_type {
+      NodeType::Element(ref e) => println!("{}<{}/>", indent, e.tag_name),
+      _ => {}
+  }
 }
