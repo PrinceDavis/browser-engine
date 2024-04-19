@@ -16,7 +16,7 @@ pub enum NodeType {
 
 #[derive(PartialEq, Eq, Clone)]
 pub struct ElementData {
-  tag_name: String,
+  pub tag_name: String,
   attributes: AttrMap,
 }
 
