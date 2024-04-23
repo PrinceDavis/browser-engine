@@ -3,8 +3,8 @@ use std::{collections::{HashMap, HashSet}, f32::consts::E, fmt::{write, Formatte
 
 #[derive(PartialEq, Eq)]
 pub struct Node {
-  children: Vec<Node>,
-  node_type: NodeType,
+  pub children: Vec<Node>,
+  pub node_type: NodeType,
 }
 
 #[derive(PartialEq, Eq, Clone)]
